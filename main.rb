@@ -28,7 +28,7 @@ end
 tester = Tester.new(max_len: 16, max_time: 10, repeat: 1000, log: true)
 csv_exporter = CSVExporter.new
 
-insertion, sizes = tester.execute_all(Heap.new, Insertion.new, Merge.new, Smooth.new, RubyDefault.new,
+insertion, sizes = tester.execute_all(ImmutableHeap.new, Insertion.new, Merge.new, Smooth.new, RubyDefault.new,
                                       Quick.new(swap_to_insertion: 32), Quick.new(swap_to_insertion: 64), Quick.new(swap_to_insertion: 128), QuickNonRec.new(swap_to_insertion: 128),
                                       Quick.new(swap_to_insertion: 64, pivot_choice: Quick.method(:random)), Quick.new(swap_to_insertion: 64, pivot_choice: Quick.method(:lowest)), Quick.new(swap_to_insertion: 64, pivot_choice: Quick.method(:median_3)), Quick.new(swap_to_insertion: 64, pivot_choice: Quick.method(:median_5)))
 
