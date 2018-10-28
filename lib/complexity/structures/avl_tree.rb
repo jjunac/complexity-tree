@@ -9,8 +9,10 @@ class AVLTree
         @height = 0
     end
 
-    def to_s
-        return "(#{@left.to_s}) #{value} (#{@right.to_s})"
+    def print(offset=0)
+        puts "#{"  "*offset}`-#{value} {balance=#{balance}, height=#{height}, left=#{@left}, right=#{@right}}"
+        @left.print offset+1 unless @left.nil?
+        @right.print offset+1 unless @right.nil?
     end
 
     def left_height
@@ -25,22 +27,28 @@ class AVLTree
         @height = 1 + [left_height, right_height].max
     end
 
+    def balance
+        return left_height - right_height
+    end
+
     def left_rotate
-        p "left_rotate"
         tmp = @right
         @right = tmp.right
         @value, tmp.value = tmp.value, @value
         tmp.right, tmp.left = tmp.left, @left
         @left = tmp
+        @left.update_height
+        update_height
     end
 
     def right_rotate
-        p "right_rotate"
         tmp = @left
         @left = tmp.left
         @value, tmp.value = tmp.value, @value
         tmp.left, tmp.right = tmp.right, @right
         @right = tmp
+        @right.update_height
+        update_height
     end
 
     def push(v)
@@ -64,28 +72,22 @@ class AVLTree
             end
         end
         update_height
-        balance = left_height - right_height
-        p to_s
-        p balance
         # Left Left
-        if balance > 1 and @value < @left.value
+        if balance > 1 and @left.balance >= 0
             right_rotate
         end
         # Right Right
-        if balance < -1 and @value > @right.value
+        if balance < -1 and @right.balance <= 0
             left_rotate
         end
         # Left Right
-        if balance > 1 and @value > @left.value
-            p to_s
-            left.left_rotate
-            p to_s
+        if balance > 1 and @left.balance < 0
+            @left.left_rotate
             right_rotate
-            p to_s
         end
         # Right Left
-        if balance < -1 and @value < @right.value
-            right.right_rotate
+        if balance < -1 and @right.balance > 0
+            @right.right_rotate
             left_rotate
         end
     end
@@ -95,22 +97,44 @@ class AVLTree
         if @value.nil?
             return nil
         end
+        res = nil
         # Recursive pop
         if @left.nil?
-            tmp = @value
+            res = @value
             if @right.nil?
                 @value = nil
             else
                 @value = @right.value
                 @right = nil
             end
-            return tmp
         else
-            if @left.value.nil?
-                @left = nil
+            if @left.left.nil?
+                # Left is the min
+                res = @left.value
+                @left = @left.right
+            else
+                res = @left.pop
             end
         end
+        update_height
+        # Left Left
+        if balance > 1 and @left.balance >= 0
+            right_rotate
+        end
+        # Right Right
+        if balance < -1 and @right.balance <= 0
+            left_rotate
+        end
+        # Left Right
+        if balance > 1 and @left.balance < 0
+            @left.left_rotate
+            right_rotate
+        end
+        # Right Left
+        if balance < -1 and @right.balance > 0
+            @right.right_rotate
+            left_rotate
+        end
+        return res
     end
-
-
 end
