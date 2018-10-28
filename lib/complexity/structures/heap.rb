@@ -7,6 +7,11 @@ class Node
 end
 
 class Heap
+
+  def name; "BinaryHeap" end
+
+  alias min peek
+
   def initialize(array: [])
     @compare = ->(a, b) {(a <=> b) < 0}
     heapify(array)
