@@ -1,139 +1,180 @@
 class Node
 
-  attr_reader :right, :value, :length, :left
+    attr_reader :right, :value, :left
 
-  def initialize(value: 0, node: nil, left: nil, right: nil, length: 1)
-    if !node.nil?
-      @right = node.right
-      @left = node.left
-      @value = node.value
-      @length = node.length
-    else
-      @right = right
-      @left = left
-      @value = value
-      @length = length
+    def initialize(value: 0, node: nil, left: nil, right: nil, length: 1)
+        if !node.nil?
+            @right = node.right
+            @left = node.left
+            @value = node.value
+        else
+            @right = right
+            @left = left
+            @value = value
+        end
     end
-  end
 
-  def <=>(other)
-    @value <=> other
-  end
+    def <=>(other)
+        @value <=> other.value
+    end
 end
 
 class ImmutableHeap
-  def initialize(array: [])
-    @compare = ->(a, b) {(a <=> b) < 0}
-    @root = nil
-    @size = 0
-    heapify(array)
-  end
+    attr_accessor :root, :size
 
-
-  def stackify(length)
-    bin = length.to_s(2)
-    node = @root
-    stack = []
-    bin = bin[1..-1]
-    bin.each_char do |c|
-      if c == "1"
-        nex = [node.right, :right]
-      else
-        nex = [node.left, :left]
-      end
-      if nex.nil?
-        break
-      end
-      stack.unshift(node)
-      node = nex
-    end
-    stack
-  end
-
-  def heapify(array)
-    i = floor(array.length / 2)
-    @last = @heap.length
-    @heap = array.clone
-    i.downto(1).each {|x| bubble_down(x)}
-  end
-
-  def push(node)
-    stack = stackify(@root.length + 1)
-    bubble_up(node, stack)
-  end
-
-  def peek
-    @root.value
-  end
-
-  def pop
-    return nil if @last == 0
-    value = @heap[1]
-    @heap[1] = @heap[@last]
-    @last -= 1
-    bubble_down(1)
-    value
-  end
-
-  def size
-    @last
-  end
-
-  def update_parents(node, stack)
-    parent = stack[0]
-    old = update_nodes(node, parent[0], parent[1])
-    stack.each do |x|
-      res = update_nodes(x[0], old, x[1])
-    end
-    res
-  end
-
-  def bubble_up(node, stack)
-    i = 0
-    stack.each do |x|
-      if !@compare[node, x]
-        swap_nodes(node, x)
-      end
-      i += 1
-    end
-    stack[i]
-  end
-
-  def bubble_down(node)
-    return if node > parent(@last)
-    left = node.left
-    right = node.right
-
-    if right > @last
-      child = left
-    else
-      child = @compare[@heap[left], @heap[right]] ? left : right
+    def initialize(array: [], root: nil, size: 0)
+        @root = root
+        @size = size
+        if root.nil?
+            heapify(array)
+        end
     end
 
-    if @compare[@heap[child], @heap[node]]
-      temp = @heap[child]
-      @heap[child] = @heap[node]
-      @heap[node] = temp
-      bubble_down(child)
+    def smaller(a, b)
+        (a <=> b) < 0
     end
 
-  end
+    def stack_to_last(length)
+        bin = length.to_s(2)
+        node = @root
+        stack = []
+        bin = bin[1..-1]
+        bin.each_char do |c|
+            if c == "0"
+                next_node = node.right
+                next_dir = :right
+            else
+                next_node = node.left
+                next_dir = :left
 
-  def update_nodes(parent, child, direction)
-    if direction == :right
-      Node.new(value: parent.value, right: child, left: parent.left)
-    else
-      Node.new(value: parent.value, right: parent.right, left: child)
+            end
+            stack.unshift([node, next_dir])
+            node = next_node
+            if next_node.nil?
+                break
+            end
+        end
+        stack
     end
-  end
 
-  def swap_nodes(node, parent, direction)
-    new_child = Node.new(value: parent.value, left: nil, right: nil)
-    if direction == :left
-      Node.new(value: node.value, left: new_child, right: parent.right)
-    else
-      Node.new(value: node.value, left: parent.left, right: new_child)
+    def heapify(array)
+        array.each do |i|
+            heap = push(i)
+            @root = heap.root
+            @size = heap.size
+        end
     end
-  end
+
+    def push(value)
+        node = Node.new(value: value)
+        return ImmutableHeap.new(root: node, size: 1) if @root.nil?
+        stack = stack_to_last(@size + 1)
+        res = bubble_up(node, stack)
+        ImmutableHeap.new(root: res, size: @size + 1)
+    end
+
+    def bubble_up(node, stack)
+        res = node
+        while stack.length > 0 do
+            x = stack[0]
+            if smaller(res, x[0])
+                stack.shift
+                res = swap_nodes(res, x[0], x[1])
+            else
+                break
+            end
+        end
+        update_parents(res, stack)
+    end
+
+
+    def peek
+        @root.value
+    end
+
+    def pop
+        return nil if @size == 0
+        value = @root.value
+        stack = stack_to_last(@size)
+        if stack.empty?
+            return value, ImmutableHeap.new
+        end
+        if stack[0][1] == :right
+            last = stack[0][0].right.nil? ? stack[0][0] : stack[0][0].right
+        else
+            last = stack[0][0].left.nil? ? stack[0][0] : stack[0][0].left
+        end
+        updated = update_parents(nil, stack)
+        new_root = Node.new(value: last.value, left: updated.left, right: updated.right)
+
+        [value, ImmutableHeap.new(root: bubble_down(new_root), size: @size - 1)]
+    end
+
+    def update_parents(node, stack)
+        res = node
+        stack.each do |x|
+            res = update_parent(res, x[0], x[1])
+        end
+        res
+    end
+
+    def update_parent(child, parent, direction)
+        if direction == :right
+            Node.new(value: parent.value, right: child, left: parent.left)
+        else
+            Node.new(value: parent.value, right: parent.right, left: child)
+        end
+    end
+
+    def bubble_down(node)
+        stack = []
+        res = node
+        while true
+            mc, direction = min_child(res)
+            if mc.nil?
+                break
+            end
+            if (res <=> mc) > 0
+                new_node = swap_nodes(mc, res, direction)
+                stack.unshift([new_node, direction])
+                if direction == :right
+                    res = new_node.right
+                elsif direction == :left
+                    res = new_node.left
+                end
+            else
+                break
+            end
+        end
+        if stack.empty?
+            node
+        else
+            update_parents(res, stack)
+        end
+    end
+
+    def min_child(node)
+        if node.right.nil? && node.left.nil?
+            return nil, nil
+        elsif node.left.nil?
+            return node.right, :right
+        elsif node.right.nil?
+            return node.left, :left
+        end
+        if smaller(node.right, node.left)
+            [node.right, :right]
+        else
+            [node.left, :left]
+        end
+    end
+
+    def swap_nodes(node, parent, direction)
+        new_child = Node.new(value: parent.value, left: node.left, right: node.right)
+        if direction == :left
+            Node.new(value: node.value, left: new_child, right: parent.right)
+        else
+            Node.new(value: node.value, left: parent.left, right: new_child)
+        end
+    end
 
 end
