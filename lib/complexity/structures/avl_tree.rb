@@ -2,17 +2,21 @@ class AVLTree
 
     attr_accessor :value, :left, :right, :height
 
-    def initialize(value=nil)
+    def initialize(value = nil, array: [])
         @value = value
         @left = nil
         @right = nil
         @height = 0
+        array.sort!
+        array.each do |x|
+            push(x)
+        end
     end
 
-    def print(offset=0)
-        puts "#{"  "*offset}`-#{value} {balance=#{balance}, height=#{height}, left=#{@left}, right=#{@right}}"
-        @left.print offset+1 unless @left.nil?
-        @right.print offset+1 unless @right.nil?
+    def print(offset = 0)
+        puts "#{"  " * offset}`-#{value} {balance=#{balance}, height=#{height}, left=#{@left}, right=#{@right}}"
+        @left.print offset + 1 unless @left.nil?
+        @right.print offset + 1 unless @right.nil?
     end
 
     def left_height
@@ -55,7 +59,7 @@ class AVLTree
         # Eliminate empty tree case
         if @value.nil?
             @value = v
-            return
+            return self
         end
         # Recursive push
         if v < @value
@@ -90,6 +94,7 @@ class AVLTree
             @right.right_rotate
             left_rotate
         end
+        self
     end
 
     def pop()
@@ -135,6 +140,6 @@ class AVLTree
             @right.right_rotate
             left_rotate
         end
-        return res
+        return res,self
     end
 end

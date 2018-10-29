@@ -9,7 +9,7 @@ class CSVExporter
         headers = data.map {|name, result| name}.unshift("array size")
         CSV.open(filename, "w", {:col_sep => ",", :write_headers => true,
                                  :headers => headers}) do |csv|
-            _,first_result = p data.first
+            _,first_result = data.first
             (0...first_result.length).each {|i|
                 line = []
                 data.each {|name, result|

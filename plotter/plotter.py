@@ -44,6 +44,26 @@ for k in df:
             hoverinfo="x+y+text", hovertext=f"a={exponents[k]}")
         traces.append(trace)
 
+
+def filter_graphs(traces, name_filter=None):
+    if name_filter:
+        return [name_filter in trace.name.lower() for trace in traces]
+    else:
+        return [True] * len(traces)
+
+
+updatemenus = [
+    dict(active=0,
+         buttons=[
+             {'label': 'All', 'method': 'update', 'args': [{'visible': filter_graphs(traces)}]},
+             {'label': 'Insertion', 'method': 'update', 'args': [{'visible': filter_graphs(traces, "insertion")}]},
+             {'label': 'Deletion', 'method': 'update', 'args': [{'visible': filter_graphs(traces, "deletion")}]},
+             {'label': 'Creation', 'method': 'update', 'args': [{'visible': filter_graphs(traces, "creation")}]},
+         ],
+         font={"size": 14}
+         )
+]
+
 layout = go.Layout(title='Simple Plot from csv data',
                    xaxis=dict(
                        type='log',
@@ -53,7 +73,7 @@ layout = go.Layout(title='Simple Plot from csv data',
                        type='log',
                        autorange=True
                    ),
-                   plot_bgcolor='rgb(230, 230,230)')
+                   plot_bgcolor='rgb(230, 230,230)', updatemenus=updatemenus)
 #
 fig = go.Figure(data=traces, layout=layout)
 

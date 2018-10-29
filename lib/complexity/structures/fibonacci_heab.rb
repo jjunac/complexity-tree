@@ -1,21 +1,24 @@
+require 'algorithms'
 class FibonacciHeap
 
-    def name; "FibonacciHeap" end
+    def name;
+        "FibonacciHeap"
+    end
 
-    def initialize
-        @heap = Containers::Heap.new
+    def initialize(array: [])
+        @heap = Containers::Heap.new array
     end
 
     def pop
-        @heap.next!
+        [@heap.pop, self]
     end
 
     def push(n)
-        @heap << n
+        @heap.push n
+        self
     end
 
     def min
-        @tree.next
+        @heap.next
     end
-
 end

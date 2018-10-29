@@ -1,35 +1,28 @@
-require './lib/complexity/tester/tester'
-require './lib/complexity/sorts/insertion'
-require './lib/complexity/tester/tester'
-require './lib/complexity/tester/csv_exporter'
-require './lib/complexity/sorts/insertion'
-require './lib/complexity/sorts/heap'
-require './lib/complexity/sorts/merge'
-require './lib/complexity/sorts/quick'
-require './lib/complexity/sorts/smooth'
-require './lib/complexity/sorts/quick_non_rec'
-
-
+require_relative 'lib/complexity/structures/heap'
+require_relative 'lib/complexity/structures/immutable_heap'
+require_relative 'lib/complexity/structures/fibonacci_heab'
+require_relative 'lib/complexity/structures/avl_tree'
+require_relative 'lib/complexity/structures/immutable_avl_tree'
+require_relative 'lib/complexity/structures/ruby_red_black'
+require_relative 'test/complexity/tester'
+require_relative 'test/complexity/csv_exporter'
 class RubyDefault
-  def name()
-    return "Default Ruby sort"
-  end
+    def name()
+        return "Default Ruby sort"
+    end
 
-  def sort(array)
-    array.sort
-  end
+    def sort(array)
+        array.sort
+    end
 
 end
 
 def random(arr, lo, hi)
-  return arr[lo..hi].sample
+    return arr[lo..hi].sample
 end
 
-tester = Tester.new(max_len: 16, max_time: 10, repeat: 1000, log: true)
+tester = Tester.new(arr_len: 8, structs: [Heap, FibonacciHeap, ImmutableHeap, AVLTree, ImmutableAVLTree, RubyRedBlack])
 csv_exporter = CSVExporter.new
 
-insertion, sizes = tester.execute_all(ImmutableHeap.new, Insertion.new, Merge.new, Smooth.new, RubyDefault.new,
-                                      Quick.new(swap_to_insertion: 32), Quick.new(swap_to_insertion: 64), Quick.new(swap_to_insertion: 128), QuickNonRec.new(swap_to_insertion: 128),
-                                      Quick.new(swap_to_insertion: 64, pivot_choice: Quick.method(:random)), Quick.new(swap_to_insertion: 64, pivot_choice: Quick.method(:lowest)), Quick.new(swap_to_insertion: 64, pivot_choice: Quick.method(:median_3)), Quick.new(swap_to_insertion: 64, pivot_choice: Quick.method(:median_5)))
-
+insertion, sizes = tester.execute_all
 csv_exporter.export_map("test.csv", sizes, insertion)

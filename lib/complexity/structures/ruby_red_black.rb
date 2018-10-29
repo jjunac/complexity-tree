@@ -1,15 +1,20 @@
 class RubyRedBlack
 
-    def initialize
+    def initialize(array: [])
         @tree = Containers::RubyRBTreeMap.new
+        array.sort!
+        array.each do |x|
+            @tree.push(x, x)
+        end
     end
 
     def pop
-        @tree.delete_min
+        [@tree.delete_min, self]
     end
 
     def push(n)
         @tree.push(n, n)
+        self
     end
 
     def min
