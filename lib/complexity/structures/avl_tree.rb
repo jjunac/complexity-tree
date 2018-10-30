@@ -97,7 +97,11 @@ class AVLTree
         self
     end
 
-    def pop()
+    def pop
+        [_pop, self]
+    end
+
+    def _pop
         # Eliminate empty tree case
         if @value.nil?
             return nil
@@ -118,7 +122,7 @@ class AVLTree
                 res = @left.value
                 @left = @left.right
             else
-                res = @left.pop
+                res = @left._pop
             end
         end
         update_height
@@ -140,6 +144,6 @@ class AVLTree
             @right.right_rotate
             left_rotate
         end
-        return res,self
+        res
     end
 end

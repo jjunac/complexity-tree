@@ -21,7 +21,7 @@ class ImmutableHeapTest < Minitest::Test
     def test_heap
         rnd = Random.new(1337)
         100.times do |_|
-            array = Array.new(5) {rnd.rand(100000)}
+            array = Array.new(100) {rnd.rand(100000)}
             heap = ImmutableHeap.new
             array.each {|x| heap = heap.push x}
             array.sort.each do |x|

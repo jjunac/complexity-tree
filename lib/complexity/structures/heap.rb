@@ -15,14 +15,13 @@ class Heap
 
     def initialize(array: [])
         @compare = ->(a, b) {(a <=> b) < 0}
-        @heap = []
         heapify(array)
     end
 
     def heapify(array)
-        @heap = array.clone
+        @heap = [0] + array.clone
         i = array.length / 2
-        @last = @heap.length
+        @last = array.length
         i.downto(1).each {|x| bubble_down(x)}
     end
 
@@ -61,24 +60,47 @@ class Heap
         end
     end
 
-    def bubble_down(parent_index)
-        return if parent_index > parent(@last)
-        left = left_child(parent_index)
-        right = right_child(parent_index)
+    # def bubble_down(parent_index)
+    #     return if parent_index > parent(@last)
+    #     left = left_child(parent_index)
+    #     right = right_child(parent_index)
+    #
+    #     if right > @last
+    #         child = left
+    #     else
+    #         child = @compare[@heap[left], @heap[right]] ? left : right
+    #     end
+    #
+    #     if @compare[@heap[child], @heap[parent_index]]
+    #         temp = @heap[child]
+    #         @heap[child] = @heap[parent_index]
+    #         @heap[parent_index] = temp
+    #         bubble_down(child)
+    #     end
+    # end
 
-        if right > @last
-            child = left
+    def bubble_down(i)
+        while (left_child(i)) <= @last
+            mc = self.min_child(i)
+            if @heap[i] > @heap[mc]
+                tmp = @heap[i]
+                @heap[i] = @heap[mc]
+                @heap[mc] = tmp
+            end
+            i = mc
+        end
+    end
+
+    def min_child(i)
+        if right_child(i) > @last
+            return left_child(i)
         else
-            child = @compare[@heap[left], @heap[right]] ? left : right
+            if @heap[left_child(i)] < @heap[right_child(i)]
+                return left_child(i)
+            else
+                return right_child(i)
+            end
         end
-
-        if @compare[@heap[child], @heap[parent_index]]
-            temp = @heap[child]
-            @heap[child] = @heap[parent_index]
-            @heap[parent_index] = temp
-            bubble_down(child)
-        end
-
     end
 
     def parent(index)

@@ -9,7 +9,7 @@ require_relative 'test/complexity/tester'
 require_relative 'test/complexity/csv_exporter'
 
 
-tester = Tester.new(arr_len: 22, structs: [Heap, ImmutableHeap, AVLTree, ImmutableAVLTree, RubyRedBlack, NativeRedBlack])
+tester = Tester.new(arr_len: 11, structs: [Heap, ImmutableHeap, AVLTree, ImmutableAVLTree, RubyRedBlack, NativeRedBlack])
 csv_exporter = CSVExporter.new
 
 insertion, sizes = tester.execute_all
