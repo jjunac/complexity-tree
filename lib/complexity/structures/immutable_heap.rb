@@ -26,7 +26,7 @@ class ImmutableHeap
         @root = root
         @size = size
         if root.nil?
-            heapify(array)
+            @root = heapify(array)
         end
     end
 
@@ -58,11 +58,15 @@ class ImmutableHeap
     end
 
     def heapify(array)
-        array.each do |i|
-            heap = push(i)
-            @root = heap.root
-            @size = heap.size
+        @size = array.length
+        loop = -> (i) do
+            if i < array.length
+                return bubble_down(Node.new(value: array[i], right: loop.call(2 * i + 1), left: loop.call(2 * i + 2)))
+            else
+                return nil
+            end
         end
+        return loop.call(0)
     end
 
     def push(value)

@@ -20,9 +20,9 @@ class Heap
     end
 
     def heapify(array)
+        @heap = array.clone
         i = array.length / 2
         @last = @heap.length
-        @heap = array.clone
         i.downto(1).each {|x| bubble_down(x)}
     end
 

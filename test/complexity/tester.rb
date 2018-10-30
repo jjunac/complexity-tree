@@ -16,7 +16,7 @@ end
 
 class Tester
 
-    def initialize(repeat: 100, arr_len: 10, size_increment: 1000, structs: [Heap, FibonacciHeap, ImmutableHeap])
+    def initialize(repeat: 100, arr_len: 10, size_increment: 500, structs: [Heap, FibonacciHeap, ImmutableHeap])
         @repeat = repeat
         @arr_len = arr_len
         @size_increment = size_increment
@@ -35,11 +35,11 @@ class Tester
         (1..@arr_len).each do |n|
             size = 2 ** n
             sizes << size
+            start = Time.now
             @repeat.times do
                 arr = @array_generator.generate size
-                to_insert = @array_generator.generate size
+                to_insert = @array_generator.generate @size_increment
                 @structs.each do |struct_class|
-                    struct_res = {:creation => [], :insert => [], :delete => []}
                     copy = arr.clone
                     struct = nil
                     creation_time = Benchmark.measure {struct = struct_class.new array: copy}.real
@@ -53,17 +53,17 @@ class Tester
                         }.real
                         deletion_time << Benchmark.measure {_, struct = struct.pop}.real
                     end
-
                     results[struct_class.name + "_insertion"][n - 1] += double_insertion_time.sum / 2
                     results[struct_class.name + "_deletion"][n - 1] += deletion_time.sum
                     results[struct_class.name + "_creation"][n - 1] += creation_time
                 end
             end
+
+            puts "Executed for arrays of 2^#{n} elements in #{Time.now - start }"
             results.each {|_, res|
                 res[n - 1] = res[n - 1] / @repeat
             }
         end
         [results, sizes]
     end
-
 end
